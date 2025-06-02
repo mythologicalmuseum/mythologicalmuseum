@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mythological Figures in the Museum of Anatolian Civilizations</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: #333;
+      text-align: center;
+    }
+    
+    /* Color Palette Styles */
+    .color-palette-container {
+      margin-bottom: 40px;
+    }
+    
+    .color-palette-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      text-align: center;
+      color: #555;
+    }
+    
+    .color-palette {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .color-slot {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      border: 2px solid #ddd;
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .color-slot.active {
+      transform: scale(1.1);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      border-color: #333;
+    }
+    
+    .color-slot.filled {
+      border-color: transparent;
+    }
+    
+    .color-slot:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+    
+    .color-slot .plus-icon {
+      display: none;
+    }
+    
+    .color-slot .remove-color {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 20px;
+      height: 20px;
+      background-color: #ff4444;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 10;
+      pointer-events: none;
+    }
+    
+    .color-slot.filled:hover .remove-color {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    /* Color Picker Modal */
+    .color-picker-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .color-picker-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      width: 300px;
+    }
+    
+    .color-picker-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .color-picker {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    
+    /* Color spectrum for picker - rainbow at top */
+    .color-spectrum {
+      width: 100%;
+      height: 20px;
+      background: linear-gradient(to right, 
+        #ff0000, #ff9900, #ffff00, 
+        #00ff00, #00ffff, #0000ff, 
+        #9900ff, #ff00ff, #ff0000);
+      border-radius: 5px;
+      margin-bottom: 15px;
+      cursor: crosshair;
+    }
+    
+    /* 2D color area with saturation/brightness */
+    .color-area {
+      width: 100%;
+      height: 150px;
+      position: relative;
+      margin-bottom: 15px;
+      cursor: crosshair;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    
+    .color-saturation {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, #fff, rgba(255,255,255,0));
+      position: absolute;
+    }
+    
+    .color-brightness {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, #000, rgba(0,0,0,0));
+      position: absolute;
+    }
+    
+    .color-selector {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 2px rgba(0,0,0,0.5);
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    
+    .color-preview {
+      width: 100%;
+      height: 40px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+    }
+    
+    .color-hex {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .color-hex span {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    
+    .color-hex input {
+      flex: 1;
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+    
+    .color-picker-actions {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .color-picker-button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .color-picker-cancel {
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    
+    .color-picker-apply {
+      background-color: #4CAF50;
+      color: white;
+    }
+    
+    .color-picker-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .filter-info {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #666;
+      min-height: 20px;
+    }
+    
+    .reset-filter {
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .reset-filter:hover {
+      background-color: #e0e0e0;
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0 30px;
+    }
+    
+    .action-button {
+      padding: 10px 20px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      background-color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .action-button:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    
+    @media (max-width: 1024px) {
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .artifact {
+      border: 1px solid #ddd;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .artifact:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .artifact img {
+      max-width: 100%;
+      height: 180px;
+      object-fit: contain;
+      margin-bottom: 15px;
+      transition: transform 0.3s ease;
+    }
+    
+    .artifact:hover img {
+      transform: scale(1.05);
+    }
+    
+    .artifact-name {
+      font-size: 18px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .click-button {
+      background-color: #ff9933;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .click-button:hover {
+      background-color: #ff8000;
+      transform: scale(1.05);
+    }
+    
+    .cursor-icon {
+      width: 15px;
+      height: 15px;
+    }
+    
+    /* Color indicator on artifacts */
+    .color-indicators {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    
+    .color-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    /* Enhanced Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      overflow: auto;
+      animation: fadeIn 0.3s;
+      backdrop-filter: blur(5px);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      width: 90%;
+      max-width: 900px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.4s;
+      position: relative;
+    }
+    
+    .modal-header {
+      padding: 20px 25px;
+      background-color: #8b4527;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    
+    .modal-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #8b4527, #e0b83e, #8b4527);
+    }
+    
+    .modal-title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    
+    .close-button {
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      background: none;
+      border: none;
+      transition: transform 0.3s ease;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    
+    .close-button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: rotate(90deg);
+    }
+    
+    .modal-body {
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    
+    @media (min-width: 768px) {
+      .modal-body {
+        flex-direction: row;
+      }
+    }
+    
+    .modal-image {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .modal-image-container {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    
+    .modal-image img {
+      max-width: 100%;
+      max-height: 350px;
+      object-fit: contain;
+      border-radius: 8px;
+      transition: transform 0.5s ease;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .modal-image:hover img {
+      transform: scale(1.05);
+    }
+    
+    .modal-image::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(139, 69, 39, 0.2), rgba(224, 184, 62, 0.2));
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    
+    .modal-image:hover::before {
+      opacity: 1;
+    }
+    
+    .modal-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      max-height: 600px;
+      padding-right: 10px;
+    }
+    
+    .modal-info::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .modal-info::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    .modal-info::-webkit-scrollbar-thumb {
+      background: #8b4527;
+      border-radius: 10px;
+    }
+    
+    .info-section {
+      margin-bottom: 20px;
+      background-color: #f9f7f2;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .info-section:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+    
+    .info-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #8b4527;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-title::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: #e0b83e;
+      border-radius: 50%;
+    }
+    
+    .info-content {
+      line-height: 1.7;
+      color: #444;
+    }
+    
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .spec-label {
+      font-weight: 500;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .spec-value {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .modal-footer {
+      padding: 20px 25px;
+      background-color: #f5f5f5;
+      text-align: right;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .artifact-period {
+      font-style: italic;
+      color: #666;
+    }
+
+    
+    .gallery-controls {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .gallery-button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #8b4527;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .gallery-button:hover {
+      background-color: #8b4527;
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .artifact-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    
+    .artifact-tag {
+      background-color: #e0b83e;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+
+    
+    /* Image Gallery */
+    .image-gallery {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      width: 100%;
+    }
+    
+    .gallery-thumbnail {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .gallery-thumbnail:hover, .gallery-thumbnail.active {
+      border-color: #e0b83e;
+      transform: scale(1.1);
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Trash icon for color picker */
+    .trash-icon {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+    
+    .trash-icon:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mythological Figures in the Museum of Anatolian Civilizations</h1>
+  
+  <div class="color-palette-container">
+    <div class="color-palette-title">Select up to 5 colors to filter artifacts</div>
+    <div class="color-palette">
+      <div class="color-slot" data-slot="0">
+        <span class="plus-icon">+</span>
+        <span class="remove-color">×</span>
+      </div>
+      <div class="color-slot" data-slot="1">
+        <span class="plus-icon">+</span>
+        <span class="remove-color">×</span>
+      </div>
+      <div class="color-slot" data-slot="2">
+        <span class="plus-icon">+</span>
+        <span class="remove-color">×</span>
+      </div>
+      <div class="color-slot" data-slot="3">
+        <span class="plus-icon">+</span>
+        <span class="remove-color">×</span>
+      </div>
+      <div class="color-slot" data-slot="4">
+        <span class="plus-icon">+</span>
+        <span class="remove-color">×</span>
+      </div>
+    </div>
+    
+    <div class="filter-info" id="filterInfo">
+      Click on a color slot above to select a color and filter artifacts
+    </div>
+  </div>
+  
+  <!-- Color Picker Modal -->
+  <div class="color-picker-modal" id="colorPickerModal">
+    <div class="color-picker-container">
+      <div class="color-picker-title">Select a Color</div>
+      
+      <div class="color-picker">
+        <div class="color-spectrum" id="colorSpectrum"></div>
+        <div class="color-area" id="colorArea">
+          <div class="color-saturation"></div>
+          <div class="color-brightness"></div>
+          <div class="color-selector" id="colorSelector"></div>
+        </div>
+        <div class="color-preview" id="colorPreview"></div>
+        <div class="color-hex">
+          <span>#</span>
+          <input type="text" id="hexInput" maxlength="6" placeholder="FFFFFF">
+        </div>
+        <svg class="trash-icon" id="trashIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      
+      <div class="color-picker-actions">
+        <button class="color-picker-button color-picker-cancel" id="cancelColorBtn">Cancel</button>
+        <button class="color-picker-button color-picker-apply" id="applyColorBtn">Apply</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="action-buttons">
+    <button class="action-button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+      </svg>
+      FROM AN IMAGE
+    </button>
+    <button class="action-button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+      SURPRISE ME
+    </button>
+  </div>
+  
+  <div class="gallery">
+    <!-- Kybele -->
+    <div class="artifact" data-colors="#808080,#F5F5DC,#E5D3B3,#E6E6FA">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #808080;"></div>
+        <div class="color-indicator" style="background-color: #F5F5DC;"></div>
+      </div>
+      <img src="kybele.webp" alt="Kybele">
+      <div class="artifact-name">Kybele</div>
+      <button class="click-button" data-artifact="Kybele">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Bull & Deer Head -->
+    <div class="artifact" data-colors="#FFD700,#A52A2A,#CD7F32,#B87333">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #FFD700;"></div>
+        <div class="color-indicator" style="background-color: #A52A2A;"></div>
+      </div>
+      <img src="bull&deerhead.webp" alt="Bull & Deer Head">
+      <div class="artifact-name">Bull & Deer Head</div>
+      <button class="click-button" data-artifact="Bull & Deer Head">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Idol -->
+    <div class="artifact" data-colors="#A52A2A,#8B4513,#FF0000">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #A52A2A;"></div>
+        <div class="color-indicator" style="background-color: #8B4513;"></div>
+      </div>
+      <img src="idol.webp" alt="Idol">
+      <div class="artifact-name">Idol</div>
+      <button class="click-button" data-artifact="Idol">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Stone Faces & Masks -->
+    <div class="artifact" data-colors="#F5F5DC,#808080,#E5D3B3,#D2B48C">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #F5F5DC;"></div>
+        <div class="color-indicator" style="background-color: #808080;"></div>
+      </div>
+      <img src="stonefaces&masks.webp" alt="Stone Faces & Masks">
+      <div class="artifact-name">Stone Faces & Masks</div>
+      <button class="click-button" data-artifact="Stone Faces & Masks">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Lion -->
+    <div class="artifact" data-colors="#000000,#2F4F4F,#808080,#708090">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #000000;"></div>
+        <div class="color-indicator" style="background-color: #2F4F4F;"></div>
+      </div>
+      <img src="lion.webp" alt="Lion">
+      <div class="artifact-name">Lion</div>
+      <button class="click-button" data-artifact="Lion">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Gilgamesh -->
+    <div class="artifact" data-colors="#F5F5DC,#E5D3B3,#D2B48C">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #F5F5DC;"></div>
+        <div class="color-indicator" style="background-color: #E5D3B3;"></div>
+      </div>
+      <img src="gılgamıs.webp" alt="Gilgamesh">
+      <div class="artifact-name">Gilgamesh</div>
+      <button class="click-button" data-artifact="Gilgamesh">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Embracing Goddess -->
+    <div class="artifact" data-colors="#A52A2A,#808080,#8B4513">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #A52A2A;"></div>
+        <div class="color-indicator" style="background-color: #808080;"></div>
+      </div>
+      <img src="embracinggoddes.webp" alt="Embracing Goddess">
+      <div class="artifact-name">Embracing Goddess</div>
+      <button class="click-button" data-artifact="Embracing Goddess">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Ceramic -->
+    <div class="artifact" data-colors="#8B4513,#A52A2A,#FF0000">
+      <div class="color-indicators">
+        <div class="color-indicator" style="background-color: #8B4513;"></div>
+        <div class="color-indicator" style="background-color: #A52A2A;"></div>
+      </div>
+      <img src="ceramic.webp" alt="Ceramic">
+      <div class="artifact-name">Ceramic</div>
+      <button class="click-button" data-artifact="Ceramic">
+        CLICK HERE
+        <svg class="cursor-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+          <path d="M13.75 6.75L19.25 12L13.75 17.25"></path>
+          <path d="M19 12H4.75"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Enhanced Modal -->
+  <div id="artifactModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Artifact Title</div>
+        <button class="close-button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-image">
+          <div class="modal-image-container">
+            <img id="modalImage" src="/placeholder.svg?height=400&width=300" alt="Artifact image">
+
+          </div>
+          <div class="image-gallery" id="imageGallery">
+            <!-- Thumbnails will be added dynamically -->
+          </div>
+        </div>
+        <div class="modal-info">
+          <!-- Specifications Section -->
+          <div class="info-section">
+            <div class="info-title">Specifications</div>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <div class="spec-label">Figure</div>
+                <div class="spec-value" id="modalFigure">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Size</div>
+                <div class="spec-value" id="modalSize">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Color</div>
+                <div class="spec-value" id="modalColor">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Period</div>
+                <div class="spec-value" id="modalPeriod">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Function</div>
+                <div class="spec-value" id="modalFunction">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Material</div>
+                <div class="spec-value" id="modalMaterial">-</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-title">History</div>
+            <div class="info-content" id="modalHistory">
+              Artifact history will be displayed here.
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-title">Features</div>
+            <div class="info-content" id="modalFeatures">
+              Artifact features will be displayed here.
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-title">Mythological Significance</div>
+            <div class="info-content" id="modalSignificance">
+              Mythological significance will be displayed here.
+            </div>
+          </div>
+          
+          <div class="artifact-tags" id="artifactTags">
+            <!-- Tags will be added dynamically -->
+          </div>
+          
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="artifact-period" id="artifactPeriodFooter">Time period information</div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced Artifact data with additional specifications and expanded color information
+    const artifactData = {
+      'Kybele': {
+        title: 'Kybele',
+        image: 'kybele.webp',
+        history: 'Kybele is one of the oldest and most important goddesses of Anatolia, with a history dating back to 6000 BCE. She gained particular importance during the Phrygian period.',
+        features: 'Usually depicted as a female figure sitting on a throne, wearing a crown with city walls, and accompanied by lions. She symbolizes fertility and fecundity.',
+        significance: 'She is considered the protector of nature, mountains, and wild animals. She is also the protector of cities and communities. She became an important cult during the Roman Empire period.',
+        period: 'Neolithic Period to Roman Empire (6000 BCE - 400 CE)',
+        tags: ['Goddess', 'Fertility', 'Phrygian', 'Roman'],
+
+        // Specifications
+        figure: 'Seated female figure with crown',
+        size: '15-30 cm in height',
+        color: 'Gray, beige (limestone, marble)',
+        periodDetail: 'Neolithic to Roman Period',
+        function: 'Religious worship, fertility rituals',
+        material: 'Limestone, marble',
+        // Color data for filtering
+        colors: ['#808080', '#F5F5DC', '#E5D3B3', '#E6E6FA']
+      },
+      'Bull & Deer Head': {
+        title: 'Bull & Deer Head',
+        image: 'bull&deerhead.webp',
+
+        history: 'This artifact belongs to the Hittite period and dates back to 1600-1200 BCE. Bull and deer figures were considered sacred in Anatolia.',
+        features: 'A gold-plated bronze sculpture. Its detailed horns and sharp features demonstrate the superior metalworking of the period.',
+        significance: 'The bull is the symbol of the Storm God Teshup in the Hittite pantheon. The deer is associated with the protective deity and nature. These figures represent power, fertility, and harmony with nature.',
+        period: 'Hittite Period (1600-1200 BCE)',
+        tags: ['Hittite', 'Bronze', 'Animal', 'Deity'],
+
+        // Specifications
+        figure: 'Animal head with horns',
+        size: '12-20 cm in height',
+        color: 'Gold, brown (bronze, copper)',
+        periodDetail: 'Hittite Period',
+        function: 'Religious symbol, royal insignia',
+        material: 'Bronze with gold plating',
+        // Color data for filtering
+        colors: ['#FFD700', '#A52A2A', '#CD7F32', '#B87333']
+      },
+      'Idol': {
+        title: 'Idol',
+        image: 'idol.webp',
+
+        history: 'This idol is part of a tradition extending from the Neolithic period to the Bronze Age, dating to 5500-3000 BCE.',
+        features: 'Made in a stylized human form, usually as a female figure. Made of terracotta, it has an abstract appearance with minimal details.',
+        significance: 'Symbolizes fertility, fecundity, and the continuity of life. It was probably used in religious rituals and played an important role in burial traditions.',
+        period: 'Neolithic to Early Bronze Age (5500-3000 BCE)',
+        tags: ['Neolithic', 'Terracotta', 'Ritual', 'Fertility'],
+
+        // Specifications
+        figure: 'Stylized human form',
+        size: '5-15 cm in height',
+        color: 'Brown, reddish-brown (terracotta)',
+        periodDetail: 'Neolithic Period',
+        function: 'Fertility symbol, burial offering',
+        material: 'Terracotta (fired clay)',
+        // Color data for filtering
+        colors: ['#A52A2A', '#8B4513', '#FF0000']
+      },
+      'stone-faces': {
+        title: 'Stone Faces and Masks',
+        image: 'stonefaces&masks.webp',
+
+        history: 'These artifacts generally belong to the Late Hittite and Phrygian periods (1200-700 BCE). They have been found in various regions of Anatolia.',
+        features: 'Masks and reliefs carved from stone in the form of human faces. Some show realistic features, while others are stylized.',
+        significance: 'These masks were probably used for ritual purposes, representing protective spirits or associated with the cult of the dead. Some may represent deities or important figures.',
+        period: 'Late Hittite and Phrygian Periods (1200-700 BCE)',
+        tags: ['Mask', 'Stone', 'Ritual', 'Phrygian'],
+
+        // Specifications
+        figure: 'Human face mask',
+        size: '10-25 cm in height',
+        color: 'Beige, gray (limestone, sandstone)',
+        periodDetail: 'Late Hittite Period',
+        function: 'Ritual mask, funerary object',
+        material: 'Limestone, sandstone',
+        // Color data for filtering
+        colors: ['#F5F5DC', '#808080', '#E5D3B3', '#D2B48C']
+      },
+      'Lion': {
+        title: 'Lion',
+        image: 'lion.webp',
+
+        history: 'Lion statues are commonly seen in the Hittite and Late Hittite periods (1600-700 BCE). They were especially used to decorate city gates and important structures.',
+        features: 'Usually made of basalt or limestone, with detailed manes and muscle structure, and emphasized paws.',
+        significance: 'The lion is a symbol of power and protection. It represents royal and divine power. Gate lions were placed to keep away evil spirits and enemies.',
+        period: 'Hittite and Late Hittite Periods (1600-700 BCE)',
+        tags: ['Lion', 'Stone', 'Protection', 'Gateway'],
+
+        // Specifications
+        figure: 'Crouching lion',
+        size: '30-100 cm in length',
+        color: 'Black, dark gray (basalt)',
+        periodDetail: 'Hittite Empire Period',
+        function: 'Gateway guardian, royal symbol',
+        material: 'Basalt (volcanic stone)',
+        // Color data for filtering
+        colors: ['#000000', '#2F4F4F', '#808080', '#708090']
+      },
+      'Gilgamesh': {
+        title: 'Gilgamesh',
+        image: 'gılgamıs.webp',
+
+        history: 'Gilgamesh is the hero of the most famous Mesopotamian epic. Such artifacts generally date to 2000-700 BCE and have also been found in Anatolia.',
+        features: 'Usually depicted as a strong male figure fighting with winged creatures or lions. May be in the form of relief or sculpture.',
+        significance: 'Gilgamesh symbolizes the search for immortality and humanity\'s struggle with nature. He is an important figure in Sumerian, Akkadian, Babylonian, and Hittite cultures.',
+        period: 'Mesopotamian Influence (2000-700 BCE)',
+        tags: ['Epic', 'Hero', 'Mesopotamian', 'Relief'],
+
+        // Specifications
+        figure: 'Standing male hero figure',
+        size: '20-40 cm in height',
+        color: 'Beige, light brown (limestone)',
+        periodDetail: 'Neo-Hittite Period',
+        function: 'Mythological narrative, palace decoration',
+        material: 'Limestone relief',
+        // Color data for filtering
+        colors: ['#F5F5DC', '#E5D3B3', '#D2B48C']
+      },
+      'Embracing Goddess': {
+        title: 'Embracing Goddess',
+        image: 'embracinggoddes.webp',
+
+        history: 'Such figures are generally seen from the Neolithic period (7000-5500 BCE) to the Bronze Age. They have been found in various settlements in Anatolia.',
+        features: 'Figurines made of terracotta, usually in the form of a woman embracing a child or another figure.',
+        significance: 'Symbolizes motherhood, protection, and nurturing. Associated with the fertility cult and probably used in birth rituals.',
+        period: 'Neolithic to Bronze Age (7000-2000 BCE)',
+        tags: ['Goddess', 'Terracotta', 'Fertility', 'Motherhood'],
+
+        // Specifications
+        figure: 'Female figure embracing child',
+        size: '8-15 cm in height',
+        color: 'Brown, gray (terracotta, clay)',
+        periodDetail: 'Early Bronze Age',
+        function: 'Fertility symbol, birth ritual object',
+        material: 'Terracotta, clay',
+        // Color data for filtering
+        colors: ['#A52A2A', '#808080', '#8B4513']
+      },
+      'Ceramic': {
+        title: 'Ceramic',
+        image: 'ceramic.webp',
+
+        history: 'Ceramic production in Anatolia is seen from the Neolithic period (7000 BCE) onwards. Such animal-shaped vessels are especially common in the Bronze Age (3000-1200 BCE).',
+        features: 'Ritual or drinking vessels made of terracotta, usually in animal form (in this example, pig or bull).',
+        significance: 'Such vessels were generally used for liquid offerings in religious ceremonies. Animal forms were associated with fertility, power, or specific deities.',
+        period: 'Bronze Age (3000-1200 BCE)',
+        tags: ['Ceramic', 'Animal', 'Vessel', 'Ritual'],
+
+        // Specifications
+        figure: 'Animal-shaped vessel',
+        size: '10-20 cm in height',
+        color: 'Brown, reddish-brown (terracotta)',
+        periodDetail: 'Middle Bronze Age',
+        function: 'Ritual vessel, liquid offering container',
+        material: 'Terracotta, fired clay',
+        // Color data for filtering
+        colors: ['#8B4513', '#A52A2A', '#FF0000']
+      }
+    };
+    
+    // Get modal elements
+    const modal = document.getElementById('artifactModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalImage = document.getElementById('modalImage');
+    const modalHistory = document.getElementById('modalHistory');
+    const modalFeatures = document.getElementById('modalFeatures');
+    const modalSignificance = document.getElementById('modalSignificance');
+    const artifactPeriodFooter = document.getElementById('artifactPeriodFooter');
+    const artifactTags = document.getElementById('artifactTags');
+    const imageGallery = document.getElementById('imageGallery');
+    const closeButton = document.querySelector('.close-button');
+    
+    // Get specification elements
+    const modalFigure = document.getElementById('modalFigure');
+    const modalSize = document.getElementById('modalSize');
+    const modalColor = document.getElementById('modalColor');
+    const modalPeriod = document.getElementById('modalPeriod');
+    const modalFunction = document.getElementById('modalFunction');
+    const modalMaterial = document.getElementById('modalMaterial');
+    
+    // Function to update modal content
+    function updateModalContent(artifactId) {
+      const data = artifactData[artifactId];
+      
+      if (data) {
+        // Update main content
+        modalTitle.textContent = data.title;
+        modalImage.src = data.image;
+        modalImage.alt = data.title;
+        modalHistory.textContent = data.history;
+        modalFeatures.textContent = data.features;
+        modalSignificance.textContent = data.significance;
+        artifactPeriodFooter.textContent = data.period;
+        
+        // Update specifications
+        modalFigure.textContent = data.figure;
+        modalSize.textContent = data.size;
+        modalColor.textContent = data.color;
+        modalPeriod.textContent = data.periodDetail;
+        modalFunction.textContent = data.function;
+        modalMaterial.textContent = data.material;
+        
+        // Update tags
+        artifactTags.innerHTML = '';
+        data.tags.forEach(tag => {
+          const tagElement = document.createElement('span');
+          tagElement.className = 'artifact-tag';
+          tagElement.textContent = tag;
+          artifactTags.appendChild(tagElement);
+        });
+        
+
+        
+
+        
+        // Show modal with animation
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+      }
+    }
+    
+    // Open modal when clicking on artifact buttons
+    document.querySelectorAll('.click-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const artifactId = this.getAttribute('data-artifact');
+        updateModalContent(artifactId);
+      });
+    });
+    
+    // Close modal when clicking on close button
+    closeButton.addEventListener('click', function() {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto'; // Re-enable scrolling
+    });
+    
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Re-enable scrolling
+      }
+    });
+    
+
+    
+    // Handle action buttons
+    document.querySelectorAll('.action-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const action = this.textContent.trim();
+        if (action.includes('FROM AN IMAGE')) {
+          alert('This feature will allow you to find similar artifacts by uploading an image.');
+        } else if (action.includes('SURPRISE ME')) {
+          // Generate random colors for all slots
+          generateRandomColors();
+        }
+      });
+    });
+    
+    // Color Picker and Palette Functionality
+    const colorPickerModal = document.getElementById('colorPickerModal');
+    const colorSpectrum = document.getElementById('colorSpectrum');
+    const colorArea = document.getElementById('colorArea');
+    const colorSelector = document.getElementById('colorSelector');
+    const colorPreview = document.getElementById('colorPreview');
+    const hexInput = document.getElementById('hexInput');
+    const applyColorBtn = document.getElementById('applyColorBtn');
+    const cancelColorBtn = document.getElementById('cancelColorBtn');
+    const trashIcon = document.getElementById('trashIcon');
+    const colorSlots = document.querySelectorAll('.color-slot');
+    const filterInfo = document.getElementById('filterInfo');
+    
+    // Color picker variables
+    let currentHue = 0;
+    let currentSaturation = 100;
+    let currentLightness = 50;
+    let currentColor = 'hsl(0, 100%, 50%)';
+    let activeSlot = null;
+    let selectedColors = Array(5).fill(null);
+    
+    // Initialize color slots
+    colorSlots.forEach((slot, index) => {
+      slot.addEventListener('click', function(event) {
+        const slotIndex = parseInt(this.getAttribute('data-slot'));
+        activeSlot = slotIndex;
+        
+        // If slot already has a color, allow removing it
+        if (selectedColors[slotIndex] && event.target.classList.contains('remove-color')) {
+          selectedColors[slotIndex] = null;
+          this.style.backgroundColor = '';
+          this.classList.remove('filled');
+          
+          updateFilteredArtifacts();
+          return;
+        }
+        
+        // Open color picker
+        colorPickerModal.style.display = 'flex';
+        
+        // Set initial color in picker
+        if (selectedColors[slotIndex]) {
+          setColorFromHex(selectedColors[slotIndex].substring(1));
+        } else {
+          // Default color
+          setColorFromHSL(0, 100, 50);
+        }
+      });
+    });
+    
+    // Color spectrum click handler
+    colorSpectrum.addEventListener('mousedown', function(e) {
+      updateColorFromSpectrumPosition(e);
+      
+      document.addEventListener('mousemove', updateColorFromSpectrumPosition);
+      document.addEventListener('mouseup', function() {
+        document.removeEventListener('mousemove', updateColorFromSpectrumPosition);
+      }, { once: true });
+    });
+    
+    // Color area click handler
+    colorArea.addEventListener('mousedown', function(e) {
+      updateColorFromAreaPosition(e);
+      
+      document.addEventListener('mousemove', updateColorFromAreaPosition);
+      document.addEventListener('mouseup', function() {
+        document.removeEventListener('mousemove', updateColorFromAreaPosition);
+      }, { once: true });
+    });
+    
+    // Hex input handler
+    hexInput.addEventListener('input', function() {
+      if (this.value.length === 6) {
+        setColorFromHex(this.value);
+      }
+    });
+    
+    // Apply color button
+    applyColorBtn.addEventListener('click', function() {
+      if (activeSlot !== null) {
+        const hexColor = '#' + hexInput.value;
+        selectedColors[activeSlot] = hexColor;
+        
+        // Update slot appearance
+        const slot = document.querySelector(`.color-slot[data-slot="${activeSlot}"]`);
+        slot.style.backgroundColor = hexColor;
+        slot.classList.add('filled');
+        
+        // Close modal
+        colorPickerModal.style.display = 'none';
+        
+        // Update filtered artifacts
+        updateFilteredArtifacts();
+      }
+    });
+    
+    // Cancel button
+    cancelColorBtn.addEventListener('click', function() {
+      colorPickerModal.style.display = 'none';
+    });
+    
+    // Trash icon to clear color
+    trashIcon.addEventListener('click', function() {
+      if (activeSlot !== null) {
+        selectedColors[activeSlot] = null;
+        
+        // Update slot appearance
+        const slot = document.querySelector(`.color-slot[data-slot="${activeSlot}"]`);
+        slot.style.backgroundColor = '';
+        slot.classList.remove('filled');
+        
+        // Close modal
+        colorPickerModal.style.display = 'none';
+        
+        // Update filtered artifacts
+        updateFilteredArtifacts();
+      }
+    });
+    
+    // Close color picker when clicking outside
+    colorPickerModal.addEventListener('click', function(e) {
+      if (e.target === colorPickerModal) {
+        colorPickerModal.style.display = 'none';
+      }
+    });
+    
+    // Function to update color from spectrum position
+    function updateColorFromSpectrumPosition(e) {
+      const rect = colorSpectrum.getBoundingClientRect();
+      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+      const hue = Math.round((x / rect.width) * 360);
+      
+      currentHue = hue;
+      updateColorDisplay();
+    }
+    
+    // Function to update color from area position
+    function updateColorFromAreaPosition(e) {
+      const rect = colorArea.getBoundingClientRect();
+      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+      const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+      
+      const saturation = Math.round((x / rect.width) * 100);
+      const lightness = Math.round(100 - (y / rect.height) * 100);
+      
+      currentSaturation = saturation;
+      currentLightness = lightness;
+      
+      // Update selector position
+      colorSelector.style.left = `${x}px`;
+      colorSelector.style.top = `${y}px`;
+      
+      updateColorDisplay();
+    }
+    
+    // Function to update color display
+    function updateColorDisplay() {
+      currentColor = `hsl(${currentHue}, ${currentSaturation}%, ${currentLightness}%)`;
+      
+      // Update color area background
+      colorArea.style.backgroundColor = `hsl(${currentHue}, 100%, 50%)`;
+      
+      // Update preview
+      colorPreview.style.backgroundColor = currentColor;
+      
+      // Update selector
+      colorSelector.style.backgroundColor = currentColor;
+      
+      // Update hex input
+      const hexColor = hslToHex(currentHue, currentSaturation, currentLightness);
+      hexInput.value = hexColor;
+    }
+    
+    // Function to set color from HSL values
+    function setColorFromHSL(h, s, l) {
+      currentHue = h;
+      currentSaturation = s;
+      currentLightness = l;
+      
+      // Calculate position in color area
+      const x = (s / 100) * colorArea.clientWidth;
+      const y = (1 - l / 100) * colorArea.clientHeight;
+      
+      // Update selector position
+      colorSelector.style.left = `${x}px`;
+      colorSelector.style.top = `${y}px`;
+      
+      updateColorDisplay();
+    }
+    
+    // Function to set color from hex
+    function setColorFromHex(hex) {
+      const rgb = hexToRgb(hex);
+      const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      
+      setColorFromHSL(hsl.h, hsl.s, hsl.l);
+    }
+    
+    // Function to convert HSL to Hex
+    function hslToHex(h, s, l) {
+      l /= 100;
+      const a = s * Math.min(l, 1 - l) / 100;
+      const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+      };
+      return `${f(0)}${f(8)}${f(4)}`;
+    }
+    
+    // Function to convert Hex to RGB
+    function hexToRgb(hex) {
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return { r, g, b };
+    }
+    
+    // Function to convert RGB to HSL
+    function rgbToHsl(r, g, b) {
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      
+      if (max === min) {
+        h = s = 0; // achromatic
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        
+        h = Math.round(h * 60);
+        if (h < 0) h += 360;
+      }
+      
+      return { h, s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+    
+    // Function to check if a color is close to another color
+    function isColorClose(color1, color2, tolerance = 30) {
+      const rgb1 = hexToRgb(color1.substring(1));
+      const rgb2 = hexToRgb(color2.substring(1));
+      
+      const rDiff = Math.abs(rgb1.r - rgb2.r);
+      const gDiff = Math.abs(rgb1.g - rgb2.g);
+      const bDiff = Math.abs(rgb1.b - rgb2.b);
+      
+      return (rDiff + gDiff + bDiff) <= tolerance * 3;
+    }
+    
+    // Function to update filtered artifacts
+    function updateFilteredArtifacts() {
+      const activeColors = selectedColors.filter(color => color !== null);
+      const artifacts = document.querySelectorAll('.artifact');
+      
+      if (activeColors.length === 0) {
+        // Show all artifacts if no colors selected
+        artifacts.forEach(artifact => {
+          artifact.classList.remove('hidden');
+        });
+        
+        filterInfo.innerHTML = 'Click on a color slot above to select a color and filter artifacts';
+        return;
+      }
+      
+      // Filter artifacts based on selected colors
+      artifacts.forEach(artifact => {
+        const artifactColors = artifact.getAttribute('data-colors').split(',');
+        let shouldShow = false;
+        
+        // Check if any of the artifact's colors match any of the selected colors
+        for (const artifactColor of artifactColors) {
+          for (const selectedColor of activeColors) {
+            if (isColorClose(artifactColor, selectedColor)) {
+              shouldShow = true;
+              break;
+            }
+          }
+          if (shouldShow) break;
+        }
+        
+        if (shouldShow) {
+          artifact.classList.remove('hidden');
+        } else {
+          artifact.classList.add('hidden');
+        }
+      });
+      
+      // Update filter info
+      const colorNames = activeColors.map(color => `<span style="display:inline-block;width:12px;height:12px;background-color:${color};border-radius:50%;margin-right:5px;"></span>`);
+      filterInfo.innerHTML = `Showing artifacts with selected colors: ${colorNames.join(' ')} <button class="reset-filter">Reset Filter</button>`;
+      
+      // Add event listener to reset button
+      document.querySelector('.reset-filter').addEventListener('click', function() {
+        resetFilter();
+      });
+    }
+    
+    // Function to reset filter
+    function resetFilter() {
+      // Clear all color slots
+      selectedColors = selectedColors.map(() => null);
+      
+      colorSlots.forEach(slot => {
+        slot.style.backgroundColor = '';
+        slot.classList.remove('filled');
+      });
+      
+      // Show all artifacts
+      document.querySelectorAll('.artifact').forEach(artifact => {
+        artifact.classList.remove('hidden');
+      });
+      
+      // Update filter info
+      filterInfo.innerHTML = 'Click on a color slot above to select a color and filter artifacts';
+    }
+    
+    // Function to generate a random color
+    function getRandomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    // Function to generate random colors for all slots
+    function generateRandomColors() {
+      colorSlots.forEach((slot, index) => {
+        const randomColor = getRandomColor();
+        selectedColors[index] = randomColor;
+        slot.style.backgroundColor = randomColor;
+        slot.classList.add('filled');
+      });
+
+      // Update filtered artifacts
+      updateFilteredArtifacts();
+    }
+
+    // Initialize with random colors on page load
+    window.addEventListener('load', function() {
+      updateColorDisplay();
+      generateRandomColors();
+    });
+  </script>
+</body>
+</html>
